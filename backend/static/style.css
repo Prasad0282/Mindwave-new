@@ -1,0 +1,371 @@
+/* 1 */
+/* <body>
+<div id="main-container">
+  <div id="left-panel">
+    <h3>New Chats</h3>
+    <!-- New chat list will go here -->
+  </div>
+
+  <div id="right-panel">
+    <div class="chatbot-title">
+      <h3>Emotional Chatbot</h3>
+    </div>
+    <div id="theme-toggle-container">
+      <button id="theme-toggle">🌙</button>
+    </div>
+
+    <div id="chat-container">
+      <div id="chat-box"></div>
+
+      <div id="input-container">
+        <input
+          type="text"
+          id="user-input"
+          placeholder="Type your message..."
+        />
+        <button id="send-btn">Send</button>
+        <button id="stop-btn">Stop</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const sendBtn = document.getElementById("send-btn");
+  const stopBtn = document.getElementById("stop-btn"); // Stop button
+  const userInput = document.getElementById("user-input");
+  const chatBox = document.getElementById("chat-box");
+  const themeToggle = document.getElementById("theme-toggle");
+  const body = document.body;
+  let isStopped = false;
+
+  sendBtn.addEventListener("click", sendMessage);
+  userInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      sendMessage();
+    }
+  });
+
+  stopBtn.addEventListener("click", () => {
+    isStopped = true; // Set the stop flag
+  });
+
+  function appendMessage(content, className) {
+    const div = document.createElement("div");
+    div.textContent = content;
+    div.className = className;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  async function typeMessage(content) {
+    const botDiv = document.createElement("div");
+    botDiv.className = "bot";
+    chatBox.appendChild(botDiv);
+
+    isStopped = false; // Reset the stop flag before typing starts
+    for (let i = 0; i < content.length; i++) {
+      if (isStopped) {
+        botDiv.textContent += " [stopped]"; // Indicate the response was interrupted
+        break;
+      }
+      botDiv.textContent += content[i];
+      chatBox.scrollTop = chatBox.scrollHeight;
+      await new Promise((resolve) => setTimeout(resolve, 20)); // 20ms delay per character
+    }
+  }
+
+  function sendMessage() {
+    const message = userInput.value.trim();
+    if (!message) return;
+
+    // Append user message
+    appendMessage(message, "user");
+
+    // Send message to backend
+    fetch("/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        const botResponse = data.response;
+        typeMessage(botResponse);
+      })
+      .catch((err) => console.error("Error:", err));
+
+    userInput.value = "";
+  }
+
+  // Theme toggle
+  const savedTheme = localStorage.getItem("theme");
+  if (savedTheme === "dark") {
+    body.classList.add("dark-mode");
+    themeToggle.textContent = "☀️";
+  }
+
+  themeToggle.addEventListener("click", () => {
+    body.classList.toggle("dark-mode");
+
+    if (body.classList.contains("dark-mode")) {
+      themeToggle.textContent = "☀️";
+      localStorage.setItem("theme", "dark");
+    } else {
+      themeToggle.textContent = "🌙";
+      localStorage.setItem("theme", "light");
+    }
+  });
+
+  // function saveChat() {
+  //   const chatBox = document.getElementById("chat-box").innerHTML;
+  //   localStorage.setItem("chatHistory", chatBox);
+  // }
+
+  // // Load chat from localStorage
+  // function loadChat() {
+  //   const chatHistory = localStorage.getItem("chatHistory");
+  //   if (chatHistory) {
+  //     document.getElementById("chat-box").innerHTML = chatHistory;
+  //   }
+  // }
+
+  // // Call loadChat on page load
+  // window.onload = loadChat;
+
+  // // Save chat before unloading the page
+  // window.onbeforeunload = saveChat;
+</script>
+</body> */
+
+/* 2
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chatbot Layout Fix</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: #f8f9fa;
+      }
+
+      .chat-container {
+        width: 90%;
+        max-width: 800px;
+        height: 90vh;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #fff;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .chat-header {
+        padding: 15px;
+        border-bottom: 1px solid #ddd;
+        font-weight: bold;
+        font-size: 1.2rem;
+        text-align: center;
+        background-color: #f1f1f1;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+      }
+
+      .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        background-color: #f9f9f9;
+      }
+
+      .chat-message {
+        padding: 10px;
+        border-radius: 5px;
+        max-width: 70%;
+      }
+
+      .chat-message.user {
+        align-self: flex-end;
+        background-color: #e0f7fa;
+      }
+
+      .chat-message.bot {
+        align-self: flex-start;
+        background-color: #e8eaf6;
+      }
+
+      .chat-footer {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border-top: 1px solid #ddd;
+        background-color: #f1f1f1;
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+      }
+
+      .chat-footer input[type="text"] {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-right: 10px;
+        font-size: 1rem;
+      }
+
+      .chat-footer button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+      }
+
+      .chat-footer button:hover {
+        background-color: #0056b3;
+      }
+
+      /* Add smooth scrolling for better experience */
+/* .chat-messages {
+        scroll-behavior: smooth;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chat-container">
+      <div class="chat-header">Emotional Chatbot</div>
+      <div id="chat-box" class="chat-messages"></div>
+      <div class="chat-footer">
+        <input
+          id="user-input"
+          type="text"
+          placeholder="Type your message here..."
+        />
+        <button id="send-btn">Send</button>
+        <button id="stop-btn">Stop</button>
+      </div>
+    </div>
+
+    <script>
+      const sendBtn = document.getElementById("send-btn");
+      const stopBtn = document.getElementById("stop-btn"); // Stop button
+      const userInput = document.getElementById("user-input");
+      const chatBox = document.getElementById("chat-box");
+      const themeToggle = document.getElementById("theme-toggle");
+      const body = document.body;
+      let isStopped = false;
+
+      sendBtn.addEventListener("click", sendMessage);
+      userInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          sendMessage();
+        }
+      });
+
+      stopBtn.addEventListener("click", () => {
+        isStopped = true; // Set the stop flag
+      });
+
+      function appendMessage(content, className) {
+        const div = document.createElement("div");
+        div.textContent = content;
+        div.className = `chat-message ${className}`;
+        chatBox.appendChild(div);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+
+      async function typeMessage(content) {
+        const botDiv = document.createElement("div");
+        botDiv.className = "chat-message bot";
+        chatBox.appendChild(botDiv);
+
+        isStopped = false; // Reset the stop flag before typing starts
+        for (let i = 0; i < content.length; i++) {
+          if (isStopped) {
+            botDiv.textContent += " [stopped]"; // Indicate the response was interrupted
+            break;
+          }
+          botDiv.textContent += content[i];
+          chatBox.scrollTop = chatBox.scrollHeight;
+          await new Promise((resolve) => setTimeout(resolve, 10)); // 20ms delay per character
+        }
+      }
+
+      function sendMessage() {
+        const message = userInput.value.trim();
+        if (!message) return;
+
+        // Append user message
+        appendMessage(message, "user");
+
+        // Send message to backend
+        fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            const botResponse = data.response;
+            typeMessage(botResponse);
+          })
+          .catch((err) => console.error("Error:", err));
+
+        userInput.value = "";
+      }
+
+      // Theme toggle
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme === "dark") {
+        body.classList.add("dark-mode");
+        themeToggle.textContent = "☀️";
+      }
+
+      themeToggle.addEventListener("click", () => {
+        body.classList.toggle("dark-mode");
+
+        if (body.classList.contains("dark-mode")) {
+          themeToggle.textContent = "☀️";
+          localStorage.setItem("theme", "dark");
+        } else {
+          themeToggle.textContent = "🌙";
+          localStorage.setItem("theme", "light");
+        }
+      });
+
+      // Chat persistence
+      function saveChat() {
+        const chatHistory = chatBox.innerHTML;
+        localStorage.setItem("chatHistory", chatHistory);
+      }
+
+      function loadChat() {
+        const chatHistory = localStorage.getItem("chatHistory");
+        if (chatHistory) {
+          chatBox.innerHTML = chatHistory;
+        }
+      }
+
+      window.onload = loadChat;
+      window.onbeforeunload = saveChat;
+    </script>
+  </body>
+</html> */
