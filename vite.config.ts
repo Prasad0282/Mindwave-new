@@ -9,7 +9,7 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      external: ["axios"], // Explicitly externalize axios to prevent Vite from bundling it
+      external: ["axios"], // Make axios external in the build process
     },
   },
 });
