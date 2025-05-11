@@ -5,11 +5,7 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
   optimizeDeps: {
-    exclude: ["lucide-react", "axios"], // Exclude axios from optimization
+    exclude: ["lucide-react"], // DO NOT exclude axios
   },
-  build: {
-    rollupOptions: {
-      external: ["axios"], // Make axios external in the build process
-    },
-  },
+  // REMOVE rollupOptions.external — let Vite bundle axios
 });
